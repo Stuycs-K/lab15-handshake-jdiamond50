@@ -32,4 +32,10 @@ int server_connect(int from_client);
 //for forking server
 int server_setup();
 
+// other server functions
+void sendInts(int to_server);
+
+// other client functions
+void readInts(int from_server);
+
 #endif

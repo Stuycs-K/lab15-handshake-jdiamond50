@@ -56,7 +56,7 @@ int server_handshake(int *to_client) {
   // sending SYN_ACK
   srand(time(NULL));
   int syn_ack = rand();
-  write(*to_client, &syn_ack, 4);
+  write(*to_client, &syn_ack, sizeof(syn_ack));
   printf("server sent: %d (SYN_ACK)\n", syn_ack);
 
   // reading ACK
@@ -99,16 +99,16 @@ int client_handshake(int *to_server) {
   printf("client sent: %s\n", PP);
 
   // opening PP
-  int PPid = open(PP, O_RDONLY);
-  printf("client opened PP (PPid = %d)\n", PPid);
+  from_server = open(PP, O_RDONLY);
+  printf("client opened PP (PPid = %d)\n", from_server);
 
   // deleting PP
   remove(PP);
-  printf("client removed PP (PPid = %d)\n", PPid);
+  printf("client removed PP (PPid = %d)\n", from_server);
 
   // reading SYN_ACK
   int syn_ack;
-  read(PPid, &syn_ack, 4);
+  read(from_server, &syn_ack, sizeof(syn_ack));
   printf("client received: %d (SYN_ACK)\n", syn_ack);
 
   // sending ACK
