@@ -26,6 +26,9 @@ int server_setup() {
   from_client = open(WKP, O_RDONLY);
   if (from_client == -1) err();
 
+  // remove WKP
+  remove(WKP);
+
   return from_client;
 }
 
@@ -47,8 +50,22 @@ int server_handshake(int *to_client) {
   read(from_client, PP, 20);
   printf("server received: %s\n", PP);
 
-  // remove WKP
-  remove(WKP);
+  // opens PP
+  *to_client = open(PP, O_WRONLY);
+
+  // sending SYN_ACK
+  srand(time(NULL));
+  int syn_ack = rand();
+  write(*to_client, &syn_ack, 4);
+  printf("server sent: %d (SYN_ACK)\n", syn_ack);
+
+  // reading ACK
+  int ack;
+  read(from_client, &ack, sizeof(ack));
+  printf("server received: %d (ACK)\n", ack);
+  if (ack != syn_ack + 1) err();
+
+  printf("handshake complete\n");
 
   return from_client;
 }
@@ -79,7 +96,7 @@ int client_handshake(int *to_server) {
 
   // writing PP to WKP
   write(WKPid, PP, strlen(PP));
-  printf("client wrote %s to WKPid\n", PP);
+  printf("client sent: %s\n", PP);
 
   // opening PP
   int PPid = open(PP, O_RDONLY);
@@ -88,6 +105,16 @@ int client_handshake(int *to_server) {
   // deleting PP
   remove(PP);
   printf("client removed PP (PPid = %d)\n", PPid);
+
+  // reading SYN_ACK
+  int syn_ack;
+  read(PPid, &syn_ack, 4);
+  printf("client received: %d (SYN_ACK)\n", syn_ack);
+
+  // sending ACK
+  int ack = syn_ack + 1;
+  write(WKPid, &ack, 4);
+  printf("client sent: %d (ACK)\n", ack);
 
   return from_server;
 }
