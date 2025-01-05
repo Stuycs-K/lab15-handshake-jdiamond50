@@ -7,6 +7,7 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+#include <signal.h>
 
 #ifndef NETWORKING_H
 #define NETWORKING_H
@@ -37,5 +38,6 @@ void sendInts(int to_server);
 
 // other client functions
 void readInts(int from_server);
+static void sighandler(int signo);
 
 #endif

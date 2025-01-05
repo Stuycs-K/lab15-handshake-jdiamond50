@@ -4,9 +4,9 @@ client: basic_client.o pipe_networking.o
 	gcc -o client basic_client.o pipe_networking.o
 	./client
 
-server: basic_server.o pipe_networking.o
-	gcc -o server basic_server.o pipe_networking.o
-	./server
+server: persistant_server.o pipe_networking.o
+	gcc -o per_server persistant_server.o pipe_networking.o
+	./per_server
 
 basic_client.o: basic_client.c pipe_networking.h
 	gcc -c basic_client.c
@@ -21,4 +21,4 @@ pipe_networking.o: pipe_networking.c pipe_networking.h
 	gcc -c pipe_networking.c
 
 clean:
-	rm -f *.o *~ client server
+	rm -f *.o *~ client server per_server
