@@ -20,7 +20,6 @@ int server_setup() {
 
   // creatintg WKP
   int mkfifoOut = mkfifo(WKP, 0666);
-  printf("mkfifoOut = %d\n", mkfifoOut);
 
   // opening WKP
   from_client = open(WKP, O_RDONLY);
@@ -70,6 +69,32 @@ int server_handshake(int *to_client) {
   return from_client;
 }
 
+void server_handshake_half(int *to_client, int from_client) {
+
+  // reads PP from WKP
+  char* PP = (char*) malloc(20 * sizeof(char));
+  read(from_client, PP, 20);
+  printf("subserver received: %s\n", PP);
+
+  // opens PP
+  *to_client = open(PP, O_WRONLY);
+
+  // sending SYN_ACK
+  srand(time(NULL));
+  int syn_ack = rand();
+  write(*to_client, &syn_ack, sizeof(syn_ack));
+  printf("subserver sent: %d (SYN_ACK)\n", syn_ack);
+
+  // reading ACK
+  int ack;
+  read(from_client, &ack, sizeof(ack));
+  printf("subserver received: %d (ACK)\n", ack);
+  if (ack != syn_ack + 1) err();
+
+  printf("handshake complete\n");
+
+}
+
 /*=========================
   client_handshake
   args: int * to_server
@@ -91,11 +116,11 @@ int client_handshake(int *to_server) {
   printf("client made PP %s\n", PP);
 
   // opening WKP
-  int WKPid = open(WKP, O_WRONLY);
-  printf("client opened WKP (WKPid = %d)\n", WKPid);
+  *to_server = open(WKP, O_WRONLY);
+  printf("client opened WKP (WKPid = %d)\n", *to_server);
 
   // writing PP to WKP
-  write(WKPid, PP, strlen(PP));
+  write(*to_server, PP, strlen(PP));
   printf("client sent: %s\n", PP);
 
   // opening PP
@@ -113,7 +138,7 @@ int client_handshake(int *to_server) {
 
   // sending ACK
   int ack = syn_ack + 1;
-  write(WKPid, &ack, 4);
+  write(*to_server, &ack, 4);
   printf("client sent: %d (ACK)\n", ack);
 
   return from_server;

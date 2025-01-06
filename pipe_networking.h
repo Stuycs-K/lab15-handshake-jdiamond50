@@ -26,18 +26,21 @@
 
 int server_handshake(int *to_client);
 int client_handshake(int *to_server);
+static void sighandler(int signo);
 
 //for basic & persistent servers
 int server_connect(int from_client);
 
 //for forking server
 int server_setup();
+void server_handshake_half(int *to_client, int from_client);
 
 // other server functions
-void sendInts(int to_server);
+void sendInts(int to_client);
+void nextLetter(int from_client, int to_client);
 
 // other client functions
-void readInts(int from_server);
-static void sighandler(int signo);
+void readInts();
+void sendLetters();
 
 #endif
